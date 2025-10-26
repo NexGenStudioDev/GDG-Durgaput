@@ -1,41 +1,116 @@
-import { useState } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { QrReader } from 'react-qr-reader';
 
 function QRCodeScanner({ showScanner, setShowScanner, handleScan, handleError }) {
   const [scanned, setScanned] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [cameraError, setCameraError] = useState(null);
+  const [isInitializing, setIsInitializing] = useState(false);
+  const lastScannedRef = useRef('');
+  const errorCountRef = useRef(0);
+  const maxErrorsRef = useRef(50); // Increased threshold
 
-  const handleResult = (result, error) => {
-    if (scanned) return; // prevent multiple triggers
+  const handleResult = useCallback(
+    (result, error) => {
+      // Prevent multiple triggers and processing
+      if (scanned || isProcessing) return;
 
-    if (result?.text) {
-      setScanned(true);
-      handleScan(result.text);
-    } else if (error) {
-      // Only log non-critical errors to avoid crashing
-      console.warn('QR decode error:', error);
-      handleError && handleError(error);
-    }
-  };
+      if (result?.text && result.text !== lastScannedRef.current) {
+        setIsProcessing(true);
+        lastScannedRef.current = result.text;
+        setScanned(true);
 
-  const requestCamera = async () => {
+        // Use setTimeout to prevent blocking the UI
+        setTimeout(() => {
+          handleScan(result);
+          setIsProcessing(false);
+        }, 100);
+      } else if (error && !isProcessing) {
+        // Ignore common decode errors that occur frequently
+        const ignoredErrors = ['NotFoundException', 'ChecksumException', 'FormatException'];
+
+        if (!ignoredErrors.includes(error.name)) {
+          errorCountRef.current += 1;
+
+          // If too many serious errors occur, stop the scanner
+          if (errorCountRef.current > maxErrorsRef.current) {
+            console.error(
+              'Too many critical QR decode errors, stopping scanner to prevent infinite loop'
+            );
+            setCameraError(
+              'Scanner stopped due to repeated critical errors. Please refresh or try again.'
+            );
+            setShowScanner(false);
+            return;
+          }
+
+          console.warn('QR decode error:', error);
+        }
+      }
+    },
+    [scanned, isProcessing, handleScan, setShowScanner]
+  );
+
+  const requestCamera = useCallback(async () => {
+    setIsInitializing(true);
+    setCameraError(null);
+
     try {
-      await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-      setShowScanner(true);
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        throw new Error('Camera not supported on this device');
+      }
+
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: 'environment',
+          width: { ideal: 640 },
+          height: { ideal: 480 },
+        },
+      });
+
+      // Stop the stream after permission is granted
+      stream.getTracks().forEach(track => track.stop());
+
+      setTimeout(() => {
+        setShowScanner(true);
+        setIsInitializing(false);
+      }, 500);
     } catch (err) {
-      console.error('Camera access denied:', err);
-      alert('Please allow camera access to scan QR codes.');
+      console.error('Camera access error:', err);
+      setCameraError(err.message);
+      setIsInitializing(false);
+
+      let errorMessage = 'Camera access denied. ';
+      if (err.name === 'NotAllowedError') {
+        errorMessage += 'Please allow camera access in your browser settings.';
+      } else if (err.name === 'NotFoundError') {
+        errorMessage += 'No camera found on this device.';
+      } else if (err.name === 'NotSupportedError') {
+        errorMessage += 'Camera not supported on this device.';
+      } else {
+        errorMessage += err.message;
+      }
+
+      alert(errorMessage);
       setShowScanner(false);
     }
-  };
+  }, [setShowScanner]);
 
-  const toggleScanner = () => {
+  const toggleScanner = useCallback(() => {
+    if (isInitializing) return; // Prevent multiple clicks during initialization
+
     setScanned(false);
+    setIsProcessing(false);
+    lastScannedRef.current = '';
+    setCameraError(null);
+    errorCountRef.current = 0; // Reset error count
+
     if (!showScanner) {
       requestCamera();
     } else {
       setShowScanner(false);
     }
-  };
+  }, [showScanner, setShowScanner, requestCamera, isInitializing]);
 
   return (
     <div className="bg-white/80 backdrop-blur-md p-6 rounded-2xl shadow-lg flex flex-col items-center">
@@ -49,20 +124,41 @@ function QRCodeScanner({ showScanner, setShowScanner, handleScan, handleError })
       </h2>
 
       <p className="text-gray-600 mb-4 text-center text-sm">
-        {showScanner
-          ? 'Position the QR code within the frame to scan.'
-          : 'Click "Start Scanner" to activate the camera.'}
+        {isInitializing
+          ? 'Initializing camera...'
+          : cameraError
+            ? `Error: ${cameraError}`
+            : showScanner
+              ? 'Position the QR code within the frame to scan.'
+              : 'Click "Start Scanner" to activate the camera.'}
       </p>
 
       {showScanner ? (
         <div className="w-64 h-64 border-4 border-blue-400 rounded-xl overflow-hidden mb-4">
           <QrReader
-            constraints={{ facingMode: 'environment', width: 640, height: 480 }}
+            constraints={{
+              facingMode: 'environment',
+              width: { ideal: 640 },
+              height: { ideal: 480 },
+            }}
             videoId="qr-reader"
             videoContainerStyle={{ width: '100%', height: '100%' }}
             onResult={handleResult}
+            onError={error => {
+              console.warn('QR Reader error:', error);
+              if (
+                error.name === 'NotAllowedError' ||
+                error.name === 'NotFoundError' ||
+                error.name === 'NotSupportedError'
+              ) {
+                setCameraError('Camera initialization failed');
+                setShowScanner(false);
+              }
+            }}
             containerStyle={{ width: '100%', height: '100%' }}
             videoStyle={{ objectFit: 'cover' }}
+            scanDelay={500}
+            style={{ width: '100%', height: '100%' }}
           />
         </div>
       ) : (
@@ -73,11 +169,16 @@ function QRCodeScanner({ showScanner, setShowScanner, handleScan, handleError })
 
       <button
         onClick={toggleScanner}
+        disabled={isInitializing}
         className={`px-5 py-2 ${
-          showScanner ? 'bg-red-600 hover:bg-red-700' : 'bg-blue-600 hover:bg-blue-700'
-        } text-white rounded-xl font-medium transition-all duration-300`}
+          isInitializing
+            ? 'bg-gray-400 cursor-not-allowed'
+            : showScanner
+              ? 'bg-red-600 hover:bg-red-700'
+              : 'bg-blue-600 hover:bg-blue-700'
+        } text-white rounded-xl font-medium transition-all duration-300 disabled:opacity-50`}
       >
-        {showScanner ? 'Stop Scanner' : 'Start Scanner'}
+        {isInitializing ? 'Initializing...' : showScanner ? 'Stop Scanner' : 'Start Scanner'}
       </button>
     </div>
   );
