@@ -14,7 +14,6 @@ function ZXingQRScanner({ showScanner, setShowScanner, handleScan, handleError }
   const videoRef = useRef(null);
   const decodeStreamRef = useRef(null);
 
-  // 🧩 Initialize ZXing reader
   useEffect(() => {
     const initializeReader = async () => {
       try {
@@ -32,10 +31,8 @@ function ZXingQRScanner({ showScanner, setShowScanner, handleScan, handleError }
     return () => {
       stopScanning();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // 🎥 Get available cameras
   const getCameras = useCallback(async () => {
     try {
       if (!readerRef.current) throw new Error('ZXing reader not ready yet');
@@ -60,7 +57,6 @@ function ZXingQRScanner({ showScanner, setShowScanner, handleScan, handleError }
     }
   }, []);
 
-  // 🚀 Start scanning with fallback
   const startScanning = useCallback(async () => {
     if (!readerRef.current || !selectedDeviceId) return;
 
@@ -71,7 +67,6 @@ function ZXingQRScanner({ showScanner, setShowScanner, handleScan, handleError }
       console.log('Starting ZXing scanner...');
       const reader = readerRef.current;
 
-      // Start decoding from the selected camera
       const decodeStream = await reader.decodeFromVideoDevice(
         selectedDeviceId,
         videoRef.current,
@@ -103,11 +98,10 @@ function ZXingQRScanner({ showScanner, setShowScanner, handleScan, handleError }
       if (err.name === 'OverconstrainedError') {
         errorMessage = 'Camera constraints not supported. Trying default camera...';
 
-        // Fallback: retry with default camera (no constraints)
         try {
           const fallbackReader = readerRef.current;
           const decodeStream = await fallbackReader.decodeFromVideoDevice(
-            null, // null = let browser pick best camera
+            null,
             videoRef.current,
             (result, error) => {
               if (result && result.getText() && result.getText() !== lastScannedRef.current) {
@@ -149,7 +143,6 @@ function ZXingQRScanner({ showScanner, setShowScanner, handleScan, handleError }
     }
   }, [selectedDeviceId, handleScan, isProcessing, handleError, setShowScanner]);
 
-  // 🧹 Stop scanning
   const stopScanning = useCallback(() => {
     try {
       if (decodeStreamRef.current && typeof decodeStreamRef.current.reset === 'function') {
@@ -162,7 +155,6 @@ function ZXingQRScanner({ showScanner, setShowScanner, handleScan, handleError }
     setShowScanner(false);
   }, [setShowScanner]);
 
-  // 🔁 Toggle scanner on/off
   const toggleScanner = useCallback(() => {
     if (isInitializing || !isReaderReady) return;
 
@@ -192,7 +184,6 @@ function ZXingQRScanner({ showScanner, setShowScanner, handleScan, handleError }
     setShowScanner,
   ]);
 
-  // 📸 Load cameras when ready
   useEffect(() => {
     if (isReaderReady) {
       getCameras();

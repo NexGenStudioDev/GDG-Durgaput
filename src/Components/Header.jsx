@@ -1,6 +1,6 @@
 function Header() {
   return (
-    <div className="static top-0 w-full flex justify-between items-center bg-white/70 backdrop-blur-md p-4 rounded-2xl shadow-lg mb-8">
+    <div className="static top-0 w-[85%] flex justify-between items-center bg-white/40 backdrop-blur-md p-4 rounded-2xl shadow-lg mb-8">
       <div className="flex items-center gap-3">
         <img
           src="https://cdn-icons-png.flaticon.com/512/5968/5968871.png"
