@@ -11,7 +11,6 @@ export default function GDGAttendance() {
   const [message, setMessage] = useState('');
 
   const handleScan = result => {
-
     if (result?.text) {
       setData(result.text);
       setMessage(`✅ Successfully Checked In: ${result.text}`);
