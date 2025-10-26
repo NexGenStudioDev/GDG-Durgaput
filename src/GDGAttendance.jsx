@@ -18,8 +18,6 @@ export default function GDGAttendance() {
     }
   };
 
-  const handleError = err => console.error(err);
-
   const handleManualCheckIn = () => {
     if (manualID.trim() === '') {
       setMessage('⚠️ Please enter a valid User ID.');
@@ -34,10 +32,15 @@ export default function GDGAttendance() {
       <Header />
       <div className="grid md:grid-cols-2 gap-8 w-full max-w-5xl">
         <QRCodeScanner
+        
           showScanner={showScanner}
           setShowScanner={setShowScanner}
           handleScan={handleScan}
-          handleError={handleError}
+          handleError={err => {
+            console.error(err);
+            setMessage(err?.message || '❌ Error accessing camera');
+            setShowScanner(false);
+          }}
         />
         <ManualCheckIn
           manualID={manualID}
