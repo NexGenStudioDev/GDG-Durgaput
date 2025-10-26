@@ -84,11 +84,7 @@ export default function GDGAttendance() {
         border border-white/10 shadow-[0_0_25px_rgba(59,130,246,0.3)] rounded-2xl px-6 py-4"
         >
           <h1 className="text-2xl md:text-2xl font-semibold flex items-center gap-2 leading-none">
-            <img
-              src={logo}
-              alt="GDG"
-              className="w-24 h-24"
-            />
+            <img src={logo} alt="GDG" className="w-24 h-24" />
 
             <h3 className="leading-[0.8]">
               <span className="bg-[linear-gradient(45deg,_rgba(66,133,244,0.8),_rgba(52,168,83,0.8))] bg-clip-text text-transparent">

@@ -170,7 +170,7 @@ function QRCodeScanner({ showScanner, setShowScanner, handleScan, handleError })
             : showScanner
               ? 'bg-red-600 hover:bg-red-700'
               : 'bg-blue-600 hover:bg-blue-700'
-        } text-white rounded-xl font-medium transition-all duration-300 disabled:opacity-50`}
+        }  text-black rounded-xl font-medium transition-all duration-300 disabled:opacity-50`}
       >
         {isInitializing ? 'Initializing...' : showScanner ? 'Stop Scanner' : 'Start Scanner'}
       </button>
