@@ -7,10 +7,11 @@ import MessageBox from './Components/MessageBox';
 export default function GDGAttendance() {
   const [data, setData] = useState('');
   const [manualID, setManualID] = useState('');
-  const [showScanner, setShowScanner] = useState(false);
+  const [showScanner, setShowScanner] = useState(true);
   const [message, setMessage] = useState('');
 
   const handleScan = result => {
+
     if (result?.text) {
       setData(result.text);
       setMessage(`✅ Successfully Checked In: ${result.text}`);

@@ -1,8 +1,7 @@
 import { QrReader } from 'react-qr-reader';
+
+
 function QRCodeScanner({ showScanner, setShowScanner, handleScan, handleError }) {
-    console.log('QRCodeScanner rendered with showScanner:', showScanner);
-    console.log('QRCodeScanner rendered with handleScan:', handleScan);
-    console.log('QRCodeScanner rendered with handleError:', handleError);
   return (
     <div className="bg-white/80 backdrop-blur-md p-6 rounded-2xl shadow-lg flex flex-col items-center">
       <h2 className="text-lg font-semibold mb-4 text-blue-700 flex items-center gap-2">
@@ -18,8 +17,10 @@ function QRCodeScanner({ showScanner, setShowScanner, handleScan, handleError })
       </p>
       {showScanner ? (
         <div className="w-64 h-64 border-4 border-blue-400 rounded-xl overflow-hidden mb-4">
+
           <QrReader
             onResult={handleScan}
+            constraints={{ facingMode: 'environment' }}
             onError={handleError}
             style={{ width: '100%' }}
           />
