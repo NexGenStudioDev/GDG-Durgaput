@@ -18,8 +18,6 @@ export default function GDGAttendance() {
     }
   };
 
-  const handleError = err => console.error(err);
-
   const handleManualCheckIn = () => {
     if (manualID.trim() === '') {
       setMessage('⚠️ Please enter a valid User ID.');
@@ -37,7 +35,11 @@ export default function GDGAttendance() {
           showScanner={showScanner}
           setShowScanner={setShowScanner}
           handleScan={handleScan}
-          handleError={handleError}
+          handleError={err => {
+            console.error(err);
+            setMessage(err?.message || '❌ Error accessing camera');
+            setShowScanner(false);
+          }}
         />
         <ManualCheckIn
           manualID={manualID}
