@@ -8,11 +8,10 @@ function QRCodeScanner({ showScanner, setShowScanner, handleScan, handleError })
   const [isInitializing, setIsInitializing] = useState(false);
   const lastScannedRef = useRef('');
   const errorCountRef = useRef(0);
-  const maxErrorsRef = useRef(50); // Increased threshold
+  const maxErrorsRef = useRef(50);
 
   const handleResult = useCallback(
     (result, error) => {
-      // Prevent multiple triggers and processing
       if (scanned || isProcessing) return;
 
       if (result?.text && result.text !== lastScannedRef.current) {
@@ -20,19 +19,16 @@ function QRCodeScanner({ showScanner, setShowScanner, handleScan, handleError })
         lastScannedRef.current = result.text;
         setScanned(true);
 
-        // Use setTimeout to prevent blocking the UI
         setTimeout(() => {
           handleScan(result);
           setIsProcessing(false);
         }, 100);
       } else if (error && !isProcessing) {
-        // Ignore common decode errors that occur frequently
         const ignoredErrors = ['NotFoundException', 'ChecksumException', 'FormatException'];
 
         if (!ignoredErrors.includes(error.name)) {
           errorCountRef.current += 1;
 
-          // If too many serious errors occur, stop the scanner
           if (errorCountRef.current > maxErrorsRef.current) {
             console.error(
               'Too many critical QR decode errors, stopping scanner to prevent infinite loop'
@@ -68,7 +64,6 @@ function QRCodeScanner({ showScanner, setShowScanner, handleScan, handleError })
         },
       });
 
-      // Stop the stream after permission is granted
       stream.getTracks().forEach(track => track.stop());
 
       setTimeout(() => {
@@ -97,14 +92,13 @@ function QRCodeScanner({ showScanner, setShowScanner, handleScan, handleError })
   }, [setShowScanner]);
 
   const toggleScanner = useCallback(() => {
-    if (isInitializing) return; // Prevent multiple clicks during initialization
+    if (isInitializing) return;
 
     setScanned(false);
     setIsProcessing(false);
     lastScannedRef.current = '';
     setCameraError(null);
-    errorCountRef.current = 0; // Reset error count
-
+    errorCountRef.current = 0;
     if (!showScanner) {
       requestCamera();
     } else {
@@ -113,7 +107,7 @@ function QRCodeScanner({ showScanner, setShowScanner, handleScan, handleError })
   }, [showScanner, setShowScanner, requestCamera, isInitializing]);
 
   return (
-    <div className="bg-white/80 backdrop-blur-md p-6 rounded-2xl shadow-lg flex flex-col items-center">
+    <div className="bg-white/80 backdrop-blur-md p-6 rounded-2xl shadow-lg flex flex-col items-center w-full">
       <h2 className="text-lg font-semibold mb-4 text-blue-700 flex items-center gap-2">
         <img
           src="https://cdn-icons-png.flaticon.com/512/1048/1048953.png"

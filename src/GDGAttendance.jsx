@@ -4,6 +4,7 @@ import QRCodeScanner from './Components/QRCodeScanner';
 import ZXingQRScanner from './Components/ZXingQRScanner';
 import ManualCheckIn from './Components/ManualCheckIn';
 import MessageBox from './Components/MessageBox';
+import Particles from './Components/Particles';
 
 export default function GDGAttendance() {
   const [data, setData] = useState('');
@@ -61,57 +62,123 @@ export default function GDGAttendance() {
   }, []);
 
   return (
-    <div className="min-h-screen w-full flex flex-col  bg-gradient-to-br from-blue-500 to-green-400 p-6 text-gray-800">
-      <Header />
-      <div className="grid md:grid-cols-2 gap-8 w-full max-w-5xl">
-        <div>
-          {useZXingScanner && zxingAvailable ? (
-            <ZXingQRScanner
-              showScanner={showScanner}
-              setShowScanner={setShowScanner}
-              handleScan={handleScan}
-              handleError={handleZXingError}
-            />
-          ) : (
-            <QRCodeScanner
-              showScanner={showScanner}
-              setShowScanner={setShowScanner}
-              handleScan={handleScan}
-              handleError={handleError}
-            />
-          )}
+    <div
+      className="relative h-screen w-full flex flex-col items-center justify-start 
+      bg-gradient-to-b from-[#0f172a] via-[#1e1b4b] to-[#0f172a] text-gray-100 px-4 overflow-x-hidden"
+    >
+      <Particles
+        particleColors={['#ffffff', '#ffffff']}
+        particleCount={300}
+        particleSpread={10}
+        speed={0.1}
+        particleBaseSize={150}
+        moveParticlesOnHover={true}
+        alphaParticles={false}
+        disableRotation={false}
+      />
 
-          <div className="mt-4 flex flex-col items-center gap-2">
-            <button
-              onClick={() => {
-                setUseZXingScanner(!useZXingScanner);
-                setShowScanner(false);
-                setMessage('');
-              }}
-              className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg text-sm transition-colors"
-            >
-              Switch to {useZXingScanner ? 'React QR Reader' : 'ZXing Scanner'}
-            </button>
-            {!useZXingScanner && (
-              <p className="text-xs text-orange-600 text-center">
-                ⚠️ React QR Reader may have issues. ZXing Scanner is recommended.
-              </p>
-            )}
-            {!zxingAvailable && (
-              <p className="text-xs text-red-600 text-center">
-                ❌ ZXing Scanner is not available in this browser.
-              </p>
-            )}
+      <div className="absolute z-30 min-h-screen w-full  flex items-center flex-col py-10 px-4 ">
+        <div
+          className="w-full max-w-6xl flex justify-between items-center bg-[#1e1b4b]/70 backdrop-blur-xl 
+        border border-white/10 shadow-[0_0_25px_rgba(59,130,246,0.3)] rounded-2xl px-6 py-4"
+        >
+          <h1 className="text-2xl md:text-3xl font-semibold flex items-center gap-2">
+            <img
+              src="https://www.gstatic.com/devrel-devsite/prod/v3b3c88b8e00c3af91d8ffb640b4df7d81b4a4541693c529eebfb3d00f90f41dc/developers/images/lockup-color.png"
+              alt="GDG"
+              className="w-8 h-8"
+            />
+            GDG Durgapur
+            <span className="text-sm text-gray-300 ml-2 font-normal">Attendance System</span>
+          </h1>
+
+          <div className="flex items-center gap-3">
+            <span className="text-sm bg-green-500/20 text-green-400 px-3 py-1 rounded-full border border-green-500/30">
+              ● Ready
+            </span>
+            <span className="text-sm bg-gradient-to-r from-orange-500 to-red-500 text-white px-4 py-1 rounded-full font-semibold">
+              DEVFEST 2025
+            </span>
           </div>
         </div>
 
-        <ManualCheckIn
-          manualID={manualID}
-          setManualID={setManualID}
-          handleManualCheckIn={handleManualCheckIn}
-        />
+        {/* Main Content */}
+        <div className="flex flex-col lg:flex-row justify-center items-stretch gap-10 w-full max-w-6xl mt-10">
+          {/* QR Code Scanner */}
+          <div
+            className="flex-1 bg-[#1e293b]/70 backdrop-blur-lg border border-white/10 rounded-2xl 
+          shadow-[0_0_30px_rgba(59,130,246,0.3)] p-6 hover:scale-[1.02] transition-transform duration-300"
+          >
+            <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+              <span className="bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
+                QR Code Scanner
+              </span>
+            </h2>
+
+            {useZXingScanner && zxingAvailable ? (
+              <ZXingQRScanner
+                showScanner={showScanner}
+                setShowScanner={setShowScanner}
+                handleScan={handleScan}
+                handleError={handleZXingError}
+              />
+            ) : (
+              <QRCodeScanner
+                showScanner={showScanner}
+                setShowScanner={setShowScanner}
+                handleScan={handleScan}
+                handleError={handleError}
+              />
+            )}
+
+            <div className="mt-6 flex flex-col items-center gap-3">
+              <button
+                onClick={() => {
+                  setUseZXingScanner(!useZXingScanner);
+                  setShowScanner(false);
+                  setMessage('');
+                }}
+                className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 
+              rounded-xl text-white font-medium shadow-md transition-transform transform hover:scale-105"
+              >
+                Switch to {useZXingScanner ? 'React QR Reader' : 'ZXing Scanner'}
+              </button>
+
+              {!useZXingScanner && (
+                <p className="text-xs sm:text-sm text-orange-400 text-center">
+                  ⚠️ React QR Reader may have issues. ZXing Scanner is recommended.
+                </p>
+              )}
+              {!zxingAvailable && (
+                <p className="text-xs sm:text-sm text-red-400 text-center">
+                  ❌ ZXing Scanner is not available in this browser.
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* Manual Check-In */}
+          <div
+            className="flex-1 bg-white/90 text-gray-800 rounded-2xl p-6 shadow-[0_0_30px_rgba(255,255,255,0.2)] 
+          hover:scale-[1.02] transition-transform duration-300"
+          >
+            <ManualCheckIn
+              manualID={manualID}
+              setManualID={setManualID}
+              handleManualCheckIn={handleManualCheckIn}
+            />
+          </div>
+        </div>
+
+        {/* Message Box */}
+        {message && (
+          <div className="w-full max-w-lg mt-10">
+            <MessageBox message={message} onClear={clearMessage} />
+          </div>
+        )}
       </div>
-      {message && <MessageBox message={message} onClear={clearMessage} />}
+
+      {/* Header */}
     </div>
   );
 }
