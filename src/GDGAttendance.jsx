@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import logo from '../src/assets/image-removebg-preview.png';
 import Header from './Components/Header';
 import QRCodeScanner from './Components/QRCodeScanner';
 import ZXingQRScanner from './Components/ZXingQRScanner';
@@ -64,7 +65,7 @@ export default function GDGAttendance() {
   return (
     <div
       className="relative h-screen w-full flex flex-col items-center justify-start 
-      bg-gradient-to-b from-[#0f172a] via-[#1e1b4b] to-[#0f172a] text-gray-100 px-4 overflow-x-hidden"
+      bg-gradient-to-b bg-[linear-gradient(135deg,_#0f0f23_0%,_#1a1a2e_25%,_#16213e_50%,_#0f3460_75%,_#533483_100%)] text-gray-100 px-4 overflow-x-hidden"
     >
       <Particles
         particleColors={['#ffffff', '#ffffff']}
@@ -79,17 +80,23 @@ export default function GDGAttendance() {
 
       <div className="absolute z-30 min-h-screen w-full  flex items-center flex-col py-10 px-4 ">
         <div
-          className="w-full max-w-6xl flex justify-between items-center bg-[#1e1b4b]/70 backdrop-blur-xl 
+          className="w-full max-w-6xl flex  justify-between items-center bg-[#1e1b4b]/70 backdrop-blur-xl 
         border border-white/10 shadow-[0_0_25px_rgba(59,130,246,0.3)] rounded-2xl px-6 py-4"
         >
-          <h1 className="text-2xl md:text-3xl font-semibold flex items-center gap-2">
+          <h1 className="text-2xl md:text-2xl font-semibold flex items-center gap-2 leading-none">
             <img
-              src="https://www.gstatic.com/devrel-devsite/prod/v3b3c88b8e00c3af91d8ffb640b4df7d81b4a4541693c529eebfb3d00f90f41dc/developers/images/lockup-color.png"
+              src={logo}
               alt="GDG"
-              className="w-8 h-8"
+              className="w-24 h-24"
             />
-            GDG Durgapur
-            <span className="text-sm text-gray-300 ml-2 font-normal">Attendance System</span>
+
+            <h3 className="leading-[0.8]">
+              <span className="bg-[linear-gradient(45deg,_rgba(66,133,244,0.8),_rgba(52,168,83,0.8))] bg-clip-text text-transparent">
+                GDG Durgapur
+              </span>
+              <br />
+              <span className="text-sm text-gray-300 ml-2 font-normal">Attendance System</span>
+            </h3>
           </h1>
 
           <div className="flex items-center gap-3">
@@ -159,7 +166,7 @@ export default function GDGAttendance() {
 
           {/* Manual Check-In */}
           <div
-            className="flex-1 bg-white/90 text-gray-800 rounded-2xl p-6 shadow-[0_0_30px_rgba(255,255,255,0.2)] 
+            className="flex-1 flex items-center opacity-100 fit-content text-gray-800 rounded-2xl p-5 shadow-[0_0_30px_rgba(255,255,255,0.2)] 
           hover:scale-[1.02] transition-transform duration-300"
           >
             <ManualCheckIn
