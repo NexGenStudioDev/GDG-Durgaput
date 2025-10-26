@@ -32,6 +32,7 @@ export default function GDGAttendance() {
       <Header />
       <div className="grid md:grid-cols-2 gap-8 w-full max-w-5xl">
         <QRCodeScanner
+        
           showScanner={showScanner}
           setShowScanner={setShowScanner}
           handleScan={handleScan}

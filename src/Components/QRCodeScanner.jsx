@@ -9,15 +9,32 @@ function QRCodeScanner({ showScanner, setShowScanner, handleScan, handleError })
 
     if (result?.text) {
       setScanned(true);
-      handleScan(result); // pass full result
+      handleScan(result.text);
     } else if (error) {
-      handleError(error);
+      // Only log non-critical errors to avoid crashing
+      console.warn('QR decode error:', error);
+      handleError && handleError(error);
+    }
+  };
+
+  const requestCamera = async () => {
+    try {
+      await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+      setShowScanner(true);
+    } catch (err) {
+      console.error('Camera access denied:', err);
+      alert('Please allow camera access to scan QR codes.');
+      setShowScanner(false);
     }
   };
 
   const toggleScanner = () => {
-    setScanned(false); // reset flag when toggling scanner
-    setShowScanner(!showScanner);
+    setScanned(false);
+    if (!showScanner) {
+      requestCamera();
+    } else {
+      setShowScanner(false);
+    }
   };
 
   return (
@@ -40,7 +57,7 @@ function QRCodeScanner({ showScanner, setShowScanner, handleScan, handleError })
       {showScanner ? (
         <div className="w-64 h-64 border-4 border-blue-400 rounded-xl overflow-hidden mb-4">
           <QrReader
-            constraints={{ facingMode: 'environment' }}
+            constraints={{ facingMode: 'environment', width: 640, height: 480 }}
             videoId="qr-reader"
             videoContainerStyle={{ width: '100%', height: '100%' }}
             onResult={handleResult}
